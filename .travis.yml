@@ -1,0 +1,20 @@
+language:
+  - cpp
+
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install libfuse-dev valgrind python3
+  - sudo pip install xattr
+
+compiler:
+  - clang
+
+script:
+  - mkdir -p build && cd build
+  - cmake ..
+  - make
+  - make test
+  - cd ..
+
+after_success:
+  - true

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CMakeWorkspace" PROJECT_DIR="$PROJECT_DIR$" />
+  <component name="CidrRootsConfiguration">
+    <excludeRoots>
+      <file path="$PROJECT_DIR$/build/test" />
+      <file path="$PROJECT_DIR$/test/mount" />
+    </excludeRoots>
+  </component>
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.5.2 virtualenv at ~/virt_env_python3" project-jdk-type="Python SDK" />
+</project>

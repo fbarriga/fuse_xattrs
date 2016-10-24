@@ -1,0 +1,11 @@
+Current Maintainer
+------------------
+
+Felipe Barriga Richards <felipe {at} felipebarriga.cl>
+
+
+Contributors
+------------
+
+- All the project structure was 'stolen' from https://github.com/libfuse/sshfs
+- The code is highly based on https://github.com/libfuse/libfuse/blob/master/example/passthrough.c
