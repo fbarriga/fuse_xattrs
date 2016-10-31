@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/fbarriga/fuse_xattrs.svg?branch=travis)](https://travis-ci.org/fbarriga/fuse_xattrs)
+[![Build Status](https://travis-ci.org/fbarriga/fuse_xattrs.svg?branch=master)](https://travis-ci.org/fbarriga/fuse_xattrs)
 
 ## Abstract
 
