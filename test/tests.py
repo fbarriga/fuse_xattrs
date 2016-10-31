@@ -17,6 +17,7 @@ import os
 # TODO
 # - listxattr: list too long
 # - sidecar file permissions
+# - corrupt metadata files
 
 
 class TestXAttrs(unittest.TestCase):

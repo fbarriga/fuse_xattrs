@@ -6,10 +6,11 @@ TODO
 - Add options to:
   - Change extension name of sidecar files
   - Hide sidecar files
-- CI: travis ?
+- Code Quality
   - Valgrind support
-  - Code coverage
   - C unit tests
+  - Valgrind report on travis
+  - Upload travis generated code coverage somewhere
 
 BUGS
 ----
@@ -19,6 +20,7 @@ BUGS
 FEATURES
 --------
 
+- Add option to mirror a specific directory instead of /
 - binary_storage:
   - crc32
   - make it endian-independent:
