@@ -19,16 +19,25 @@ To unmount the filesystem:
     fusermount -u mountpoint
 
 
-## Installing
+## Building
 
 First you need to download FUSE 2.9 or later from
 http://github.com/libfuse/libfuse.
 
-    mkdir build
-    cd build
+    mkdir build && cd build
     cmake ..
     make
 
+## Code Coverage
+
+    mkdir build && cd build
+    cmake -DENABLE_CODECOVERAGE=1 -DCMAKE_C_COMPILER=/usr/bin/gcc -DCMAKE_BUILD_TYPE=Debug ..
+    make
+    make fuse_xattrs_coverage
+
+## Installing
+
+    make install
 
 ## Links
 
