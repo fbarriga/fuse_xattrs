@@ -1,20 +1,27 @@
+sudo: required
+dist: trusty
+
 language:
   - cpp
 
 before_install:
   - sudo apt-get update -qq
-  - sudo apt-get install libfuse-dev valgrind python3
-  - sudo pip install xattr
+  - sudo apt-get install libfuse-dev valgrind gcc libattr1-dev fuse wget lcov
+  - sudo modprobe fuse
+  - sudo chmod 666 /dev/fuse
+  - sudo chown root:$USER /etc/fuse.conf
 
 compiler:
-  - clang
+  - gcc
 
 script:
+  - virtualenv -p /usr/bin/python3 python_venv
+  - source python_venv/bin/activate
+  - easy_install xattr
   - mkdir -p build && cd build
-  - cmake ..
+  - cmake -DENABLE_CODECOVERAGE=1 -DCMAKE_C_COMPILER=/usr/bin/gcc -DCMAKE_BUILD_TYPE=Debug ..
   - make
-  - make test
-  - cd ..
+  - make fuse_xattrs_coverage
 
-after_success:
-  - true
+after_failure:
+  - cat build/Testing/Temporary/LastTest.log

@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/fbarriga/fuse_xattrs.svg?branch=travis)](https://travis-ci.org/fbarriga/fuse_xattrs)
+
 ## Abstract
 
 This filesystem provides xattr support using sidecar files.
