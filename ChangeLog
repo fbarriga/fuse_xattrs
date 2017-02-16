@@ -4,6 +4,7 @@ Release 0.2 (2017-02-16)
 * Fix tests
 * Added support to specify source directory (not mirroring the full fs /)
 * Hide sidecar files by default
+* Added man page
 
 Release 0.1 (2016-10-23)
 ------------------------

@@ -1,17 +1,22 @@
-.TH FUSE_XATTRS "1" "February 2017" "FUSE_XATTRS version 0.2" "User Commands"
+.TH FUSE_XATTRS "1" "February 2017" "FUSE_XATTRS version @FUSE_XATTRS_VERSION_MAJOR@.@FUSE_XATTRS_VERSION_MINOR@" "User Commands"
 .SH NAME
-FUSE_XATTRS \- Add xattrs support using sidecar files
+FUSE_XATTRS \- Filesystem that add xattrs support using sidecar files
 .SH SYNOPSIS
 .SS mounting
 .TP
 \fBfuse_xattrs\fP \fBsource_dir\fP \fBmountpoint\fP
 .SS unmounting
 .TP
-\fB__UNMOUNT_COMMAND__ mountpoint\fP
+\fBfusermount -u mountpoint\fP
 .SH DESCRIPTION
 FUSE_XATTRS is a way to add xattrs support to any filesystem. The attributes are stored in sidecar files.
 .PP
 .PD
+.SH "EXAMPLES"
+.TP
+Add xattrs support to \fB/mnt/nfs/data\fP by mounting it on \fB/mnt/nfs_data_with_xattrs\fP
+\fBfuse_xattrs /mnt/nfs/data /mnt/nfs_data_with_xattrs\fP
+.LP
 .SH "AUTHORS"
 .LP
 FUSE_XATTRS has been written by Felipe Barriga Richards <felipe {at} felipebarriga.cl>.

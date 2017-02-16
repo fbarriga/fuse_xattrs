@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(fuse_xattrs C)
 
 set(FUSE_XATTRS_VERSION_MAJOR 0)
@@ -17,6 +17,11 @@ configure_file (
 )
 include_directories(
         "${PROJECT_BINARY_DIR}"
+)
+
+configure_file (
+        "${PROJECT_SOURCE_DIR}/fuse_xattrs.1.in"
+        "${PROJECT_BINARY_DIR}/fuse_xattrs.1"
 )
 
 # Check xattr headers
@@ -67,6 +72,11 @@ target_link_libraries (
 )
 
 install (TARGETS fuse_xattrs DESTINATION bin)
+install (
+        FILES ${CMAKE_CURRENT_BINARY_DIR}/fuse_xattrs.1
+        DESTINATION man/man1
+        COMPONENT doc
+)
 
 enable_testing()
 configure_file(run_tests.sh run_tests.sh COPYONLY)
