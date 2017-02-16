@@ -82,11 +82,14 @@ int xmp_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
     struct dirent *de;
 
     (void) offset;
-    (void) fi;
 
-    char *_path = prepend_source_directory(path);
-    dp = opendir(_path);
-    free(_path);
+    if (fi != NULL && fi->fh != 0) {
+        dp = fdopendir(fi->fh);
+    } else {
+        char *_path = prepend_source_directory(path);
+        dp = opendir(_path);
+        free(_path);
+    }
 
     if (dp == NULL)
         return -errno;
@@ -311,71 +314,49 @@ struct fuse_file_info *fi)
 #endif
 
 int xmp_open(const char *path, struct fuse_file_info *fi) {
-    int res;
+    int fd;
     if (xattrs_config.show_sidecar == 0 && filename_is_sidecar(path) == 1)  {
         return -ENOENT;
     }
 
     char *_path = prepend_source_directory(path);
-    res = open(_path, fi->flags);
+    fd = open(_path, fi->flags);
     free(_path);
 
-    if (res == -1)
+    if (fd == -1)
         return -errno;
 
-    close(res);
+    fi->fh = fd;
     return 0;
 }
 
 int xmp_read(const char *path, char *buf, size_t size, off_t offset,
              struct fuse_file_info *fi)
 {
-    if (xattrs_config.show_sidecar == 0 && filename_is_sidecar(path) == 1)  {
-        return -ENOENT;
+    (void) path;
+    if (fi == NULL || fi->fh == 0) {
+        return -1;
     }
 
-    int fd;
-    int res;
-
-    (void) fi;
-    char *_path = prepend_source_directory(path);
-    fd = open(_path, O_RDONLY);
-    free(_path);
-
-    if (fd == -1)
-        return -errno;
-
-    res = pread(fd, buf, size, offset);
+    int res = pread(fi->fh, buf, size, offset);
     if (res == -1)
         res = -errno;
 
-    close(fd);
     return res;
 }
 
 int xmp_write(const char *path, const char *buf, size_t size,
               off_t offset, struct fuse_file_info *fi)
 {
-    if (xattrs_config.show_sidecar == 0 && filename_is_sidecar(path) == 1)  {
-        return -ENOENT;
+    (void) path;
+    if (fi == NULL || fi->fh == 0) {
+        return -1;
     }
 
-    int fd;
-    int res;
-
-    (void) fi;
-    char *_path = prepend_source_directory(path);
-    fd = open(_path, O_WRONLY);
-    free(_path);
-
-    if (fd == -1)
-        return -errno;
-
-    res = pwrite(fd, buf, size, offset);
+    int res = pwrite(fi->fh, buf, size, offset);
     if (res == -1)
         res = -errno;
 
-    close(fd);
     return res;
 }
 
@@ -396,12 +377,8 @@ int xmp_statfs(const char *path, struct statvfs *stbuf) {
 }
 
 int xmp_release(const char *path, struct fuse_file_info *fi) {
-    /* Just a stub.	 This method is optional and can safely be left
-       unimplemented */
-
     (void) path;
-    (void) fi;
-    return 0;
+    return close(fi->fh);
 }
 
 int xmp_fsync(const char *path, int isdatasync,
@@ -419,28 +396,16 @@ int xmp_fsync(const char *path, int isdatasync,
 int xmp_fallocate(const char *path, int mode,
                   off_t offset, off_t length, struct fuse_file_info *fi)
 {
-    if (xattrs_config.show_sidecar == 0 && filename_is_sidecar(path) == 1)  {
-        return -ENOENT;
+    (void) path;
+    if (fi == NULL || fi->fh == 0) {
+        return -1;
     }
 
-    int fd;
     int res;
-
-    (void) fi;
-
     if (mode)
         return -EOPNOTSUPP;
 
-    char *_path = prepend_source_directory(path);
-    fd = open(_path, O_WRONLY);
-    free(_path);
-
-    if (fd == -1)
-        return -errno;
-
-    res = -posix_fallocate(fd, offset, length);
-
-    close(fd);
+    res = -posix_fallocate(fi->fh, offset, length);
     return res;
 }
 #endif
