@@ -1,10 +1,10 @@
-.TH FUSE_XATTRS "1" "October 2016" "FUSE_XATTRS version 0.1" "User Commands"
+.TH FUSE_XATTRS "1" "February 2017" "FUSE_XATTRS version 0.2" "User Commands"
 .SH NAME
 FUSE_XATTRS \- Add xattrs support using sidecar files
 .SH SYNOPSIS
 .SS mounting
 .TP
-\fBfuse_xattrs\fP \fBmountpoint\fP
+\fBfuse_xattrs\fP \fBsource_dir\fP \fBmountpoint\fP
 .SS unmounting
 .TP
 \fB__UNMOUNT_COMMAND__ mountpoint\fP

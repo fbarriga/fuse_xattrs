@@ -1,6 +1,24 @@
 cmake_minimum_required(VERSION 2.8)
 project(fuse_xattrs C)
 
+set(FUSE_XATTRS_VERSION_MAJOR 0)
+set(FUSE_XATTRS_VERSION_MINOR 2)
+
+set(BINARY_SIDECAR_EXT \".xattr\")
+
+set(MAX_METADATA_SIZE "8*1024*1024")  # 8 MiB
+set(XATTR_NAME_MAX 255)               # chars in an extended attribute name
+set(XATTR_SIZE_MAX 65536)             # size of an extended attribute value (64k)
+set(XATTR_LIST_MAX 65536)             # size of extended attribute namelist (64k)
+
+configure_file (
+        "${PROJECT_SOURCE_DIR}/fuse_xattrs_config.h.in"
+        "${PROJECT_BINARY_DIR}/fuse_xattrs_config.h"
+)
+include_directories(
+        "${PROJECT_BINARY_DIR}"
+)
+
 # Check xattr headers
 include (CheckIncludeFile)
 check_include_file (sys/xattr.h HAVE_SYS_XATTR_H)
@@ -35,17 +53,11 @@ if(ENABLE_CODECOVERAGE)
 endif(ENABLE_CODECOVERAGE)
 
 set(SOURCE_FILES
-        compat/fuse_opt.c
-        compat/fuse_opt.h
         fuse_xattrs.c
         passthrough.c
-        passthrough.h
         binary_storage.c
-        binary_storage.h
         utils.c
-        utils.h
-        const.h
-        fuse_xattrs_config.h)
+)
 
 add_executable(fuse_xattrs ${SOURCE_FILES})
 

@@ -1,7 +1,7 @@
 /*
   fuse_xattrs - Add xattrs support using sidecar files
 
-  Copyright (C) 2016  Felipe Barriga Richards <felipe {at} felipebarriga.cl>
+  Copyright (C) 2016-2017  Felipe Barriga Richards <felipe {at} felipebarriga.cl>
 
   Based on passthrough.c (libfuse example)
 
@@ -23,6 +23,8 @@
 #include <errno.h>
 
 #include "fuse_xattrs_config.h"
+
+#include "xattrs_config.h"
 #include "utils.h"
 
 int xmp_getattr(const char *path, struct stat *stbuf) {

@@ -12,7 +12,7 @@
 #include <string.h>
 
 #include "utils.h"
-#include "const.h"
+#include "fuse_xattrs_config.h"
 
 char *prepend_source_directory(const char *a, const char *b) {
     size_t len = strlen(a) + strlen(b) + 1;
@@ -25,12 +25,12 @@ char *prepend_source_directory(const char *a, const char *b) {
 char *get_sidecar_path(const char *path)
 {
     const size_t path_len = strlen(path);
-    const size_t sidecar_ext_len = strlen(SIDECAR_EXT); // this can be optimized
+    const size_t sidecar_ext_len = strlen(BINARY_SIDECAR_EXT); // this can be optimized
     const size_t sidecar_path_len = path_len + sidecar_ext_len + 1;
     char *sidecar_path = (char *) malloc(sidecar_path_len);
     memset(sidecar_path, '\0', sidecar_path_len);
     memcpy(sidecar_path, path, path_len);
-    memcpy(sidecar_path + path_len, SIDECAR_EXT, sidecar_ext_len);
+    memcpy(sidecar_path + path_len, BINARY_SIDECAR_EXT, sidecar_ext_len);
 
     return sidecar_path;
 }

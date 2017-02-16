@@ -15,7 +15,7 @@
 
 #include "binary_storage.h"
 #include "utils.h"
-#include "const.h"
+#include "fuse_xattrs_config.h"
 
 #include <attr/xattr.h>
 

@@ -1,7 +1,7 @@
 /*
   fuse_xattrs - Add xattrs support using sidecar files
 
-  Copyright (C) 2016  Felipe Barriga Richards <felipe {at} felipebarriga.cl>
+  Copyright (C) 2016-2017  Felipe Barriga Richards <felipe {at} felipebarriga.cl>
 
   Based on passthrough.c (libfuse example)
 
@@ -25,12 +25,13 @@
 #include <fuse.h>
 #include <sys/xattr.h>
 
-#include "utils.h"
-#include "passthrough.h"
 #include "fuse_xattrs_config.h"
 
+#include "xattrs_config.h"
+#include "utils.h"
+#include "passthrough.h"
+
 #include "binary_storage.h"
-#include "const.h"
 
 static int xmp_setxattr(const char *path, const char *name, const char *value, size_t size, int flags)
 {
@@ -249,6 +250,7 @@ static int xattrs_opt_proc(void *data, const char *arg, int key,
             exit(1);
 
         case KEY_VERSION:
+            printf("FUSE_XATTRS version %d.%d\n", FUSE_XATTRS_VERSION_MAJOR, FUSE_XATTRS_VERSION_MINOR);
             fuse_opt_add_arg(outargs, "--version");
             fuse_main(outargs->argc, outargs->argv, &xmp_oper, NULL);
             exit(0);
