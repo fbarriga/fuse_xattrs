@@ -13,11 +13,17 @@
 
 #include "utils.h"
 #include "fuse_xattrs_config.h"
+#include "xattrs_config.h"
 
-char *prepend_source_directory(const char *a, const char *b) {
-    size_t len = strlen(a) + strlen(b) + 1;
-    char *dst = (char*) malloc(sizeof(char) * len);
-    sprintf(dst, "%s%s", a, b);
+/* TODO: re-use memory to avoid calling malloc every time */
+char *prepend_source_directory(const char *b) {
+    const size_t b_size = strlen(b);
+    const size_t dst_len = xattrs_config.source_dir_size + b_size + 1;
+    char *dst = (char*) malloc(sizeof(char) * dst_len);
+
+    memcpy(dst, xattrs_config.source_dir, xattrs_config.source_dir_size);
+    memcpy(dst+xattrs_config.source_dir_size, b, b_size + 1); // include '\0'
+    //sprintf(dst, "%s%s", a, b);
 
     return dst;
 }

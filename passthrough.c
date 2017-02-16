@@ -32,7 +32,7 @@ int xmp_getattr(const char *path, struct stat *stbuf) {
         return -ENOENT;
     }
 
-    char *_path = prepend_source_directory(xattrs_config.source_dir, path);
+    char *_path = prepend_source_directory(path);
     res = lstat(_path, stbuf);
     free(_path);
 
@@ -48,7 +48,7 @@ int xmp_access(const char *path, int mask) {
         return -ENOENT;
     }
 
-    char *_path = prepend_source_directory(xattrs_config.source_dir, path);
+    char *_path = prepend_source_directory(path);
     res = access(_path, mask);
     free(_path);
 
@@ -64,7 +64,7 @@ int xmp_readlink(const char *path, char *buf, size_t size) {
         return -ENOENT;
     }
 
-    char *_path = prepend_source_directory(xattrs_config.source_dir, path);
+    char *_path = prepend_source_directory(path);
     res = readlink(_path, buf, size - 1);
     free(_path);
 
@@ -84,7 +84,7 @@ int xmp_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
     (void) offset;
     (void) fi;
 
-    char *_path = prepend_source_directory(xattrs_config.source_dir, path);
+    char *_path = prepend_source_directory(path);
     dp = opendir(_path);
     free(_path);
 
@@ -114,7 +114,7 @@ int xmp_mknod(const char *path, mode_t mode, dev_t rdev) {
         return -ENOENT;
     }
 
-    char *_path = prepend_source_directory(xattrs_config.source_dir, path);
+    char *_path = prepend_source_directory(path);
 
     /* On Linux this could just be 'mknod(path, mode, rdev)' but this
        is more portable */
@@ -140,7 +140,7 @@ int xmp_mkdir(const char *path, mode_t mode) {
         return -ENOENT;
     }
 
-    char *_path = prepend_source_directory(xattrs_config.source_dir, path);
+    char *_path = prepend_source_directory(path);
     res = mkdir(_path, mode);
     free(_path);
 
@@ -156,7 +156,7 @@ int xmp_unlink(const char *path) {
         return -ENOENT;
     }
 
-    char *_path = prepend_source_directory(xattrs_config.source_dir, path);
+    char *_path = prepend_source_directory(path);
     res = unlink(_path);
     free(_path);
 
@@ -172,7 +172,7 @@ int xmp_rmdir(const char *path) {
         return -ENOENT;
     }
 
-    char *_path = prepend_source_directory(xattrs_config.source_dir, path);
+    char *_path = prepend_source_directory(path);
     res = rmdir(_path);
     free(_path);
 
@@ -190,7 +190,7 @@ int xmp_symlink(const char *from, const char *to) {
         }
     }
 
-    char *_to = prepend_source_directory(xattrs_config.source_dir, to);
+    char *_to = prepend_source_directory(to);
     res = symlink(from, _to);
     free(_to);
 
@@ -208,8 +208,8 @@ int xmp_rename(const char *from, const char *to) {
         }
     }
 
-    char *_from = prepend_source_directory(xattrs_config.source_dir, from);
-    char *_to = prepend_source_directory(xattrs_config.source_dir, to);
+    char *_from = prepend_source_directory(from);
+    char *_to = prepend_source_directory(to);
     res = rename(_from, _to);
     free(_from);
     free(_to);
@@ -228,8 +228,8 @@ int xmp_link(const char *from, const char *to) {
         }
     }
 
-    char *_from = prepend_source_directory(xattrs_config.source_dir, from);
-    char *_to = prepend_source_directory(xattrs_config.source_dir, to);
+    char *_from = prepend_source_directory(from);
+    char *_to = prepend_source_directory(to);
     res = link(_from, _to);
     free(_from);
     free(_to);
@@ -246,7 +246,7 @@ int xmp_chmod(const char *path, mode_t mode) {
         return -ENOENT;
     }
 
-    char *_path = prepend_source_directory(xattrs_config.source_dir, path);
+    char *_path = prepend_source_directory(path);
     res = chmod(_path, mode);
     free(_path);
 
@@ -262,7 +262,7 @@ int xmp_chown(const char *path, uid_t uid, gid_t gid) {
         return -ENOENT;
     }
 
-    char *_path = prepend_source_directory(xattrs_config.source_dir, path);
+    char *_path = prepend_source_directory(path);
     res = lchown(_path, uid, gid);
     free(_path);
 
@@ -278,7 +278,7 @@ int xmp_truncate(const char *path, off_t size) {
         return -ENOENT;
     }
 
-    char *_path = prepend_source_directory(xattrs_config.source_dir, path);
+    char *_path = prepend_source_directory(path);
     res = truncate(_path, size);
     free(_path);
 
@@ -299,7 +299,7 @@ struct fuse_file_info *fi)
     (void) fi;
     int res;
 
-    char *_path = prepend_source_directory(xattrs_config.source_dir, path);
+    char *_path = prepend_source_directory(path);
     /* don't use utime/utimes since they follow symlinks */
     res = utimensat(0, _path, ts, AT_SYMLINK_NOFOLLOW);
     free(_path);
@@ -316,7 +316,7 @@ int xmp_open(const char *path, struct fuse_file_info *fi) {
         return -ENOENT;
     }
 
-    char *_path = prepend_source_directory(xattrs_config.source_dir, path);
+    char *_path = prepend_source_directory(path);
     res = open(_path, fi->flags);
     free(_path);
 
@@ -338,7 +338,7 @@ int xmp_read(const char *path, char *buf, size_t size, off_t offset,
     int res;
 
     (void) fi;
-    char *_path = prepend_source_directory(xattrs_config.source_dir, path);
+    char *_path = prepend_source_directory(path);
     fd = open(_path, O_RDONLY);
     free(_path);
 
@@ -364,7 +364,7 @@ int xmp_write(const char *path, const char *buf, size_t size,
     int res;
 
     (void) fi;
-    char *_path = prepend_source_directory(xattrs_config.source_dir, path);
+    char *_path = prepend_source_directory(path);
     fd = open(_path, O_WRONLY);
     free(_path);
 
@@ -385,7 +385,7 @@ int xmp_statfs(const char *path, struct statvfs *stbuf) {
         return -ENOENT;
     }
 
-    char *_path = prepend_source_directory(xattrs_config.source_dir, path);
+    char *_path = prepend_source_directory(path);
     res = statvfs(_path, stbuf);
     free(_path);
 
@@ -431,7 +431,7 @@ int xmp_fallocate(const char *path, int mode,
     if (mode)
         return -EOPNOTSUPP;
 
-    char *_path = concat(xattrs_config.source_dir, path);
+    char *_path = prepend_source_directory(path);
     fd = open(_path, O_WRONLY);
     free(_path);
 

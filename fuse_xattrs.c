@@ -53,7 +53,7 @@ static int xmp_setxattr(const char *path, const char *name, const char *value, s
         return -ENOSPC;
     }
 
-    char *_path = prepend_source_directory(xattrs_config.source_dir, path);
+    char *_path = prepend_source_directory(path);
 
 #ifdef DEBUG
     char *sanitized_value = sanitize_value(value, size);
@@ -84,7 +84,7 @@ static int xmp_getxattr(const char *path, const char *name, char *value, size_t 
         return -ERANGE;
     }
 
-    char *_path = prepend_source_directory(xattrs_config.source_dir, path);
+    char *_path = prepend_source_directory(path);
     debug_print("path=%s name=%s size=%zu\n", _path, name, size);
     int rtval = binary_storage_read_key(_path, name, value, size);
     free(_path);
@@ -103,7 +103,7 @@ static int xmp_listxattr(const char *path, char *list, size_t size)
         return -E2BIG;
     }
 
-    char *_path = prepend_source_directory(xattrs_config.source_dir, path);
+    char *_path = prepend_source_directory(path);
     debug_print("path=%s size=%zu\n", _path, size);
     int rtval = binary_storage_list_keys(_path, list, size);
     free(_path);
@@ -126,7 +126,7 @@ static int xmp_removexattr(const char *path, const char *name)
         return -ERANGE;
     }
 
-    char *_path = prepend_source_directory(xattrs_config.source_dir, path);
+    char *_path = prepend_source_directory(path);
     debug_print("path=%s name=%s\n", _path, name);
     int rtval = binary_storage_remove_key(_path, name);
     free(_path);
@@ -249,6 +249,7 @@ static int xattrs_opt_proc(void *data, const char *arg, int key,
         case FUSE_OPT_KEY_NONOPT:
             if (!xattrs_config.source_dir) {
                 xattrs_config.source_dir = sanitized_source_directory(arg);
+                xattrs_config.source_dir_size = strlen(xattrs_config.source_dir);
                 return 0;
             }
             break;
