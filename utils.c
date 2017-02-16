@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 
 #include "utils.h"
 #include "fuse_xattrs_config.h"
@@ -26,6 +27,34 @@ char *prepend_source_directory(const char *b) {
     //sprintf(dst, "%s%s", a, b);
 
     return dst;
+}
+
+int is_directory(const char *path) {
+    struct stat statbuf;
+    if (stat(path, &statbuf) != 0) {
+        fprintf(stderr, "cannot get source directory status: %s\n", path);
+        return -1;
+    }
+
+    if (!S_ISDIR(statbuf.st_mode)) {
+        fprintf(stderr, "source directory must be a directory: %s\n", path);
+        return -1;
+    }
+
+    return 1;
+}
+
+int is_regular_file(const char *path) {
+    struct stat statbuf;
+    if (stat(path, &statbuf) != 0) {
+        return -1;
+    }
+
+    if (!S_ISREG(statbuf.st_mode)) {
+        return -1;
+    }
+
+    return 1;
 }
 
 char *get_sidecar_path(const char *path)

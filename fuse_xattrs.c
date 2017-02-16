@@ -167,22 +167,6 @@ static struct fuse_operations xmp_oper = {
         .removexattr = xmp_removexattr,
 };
 
-
-int is_directory(const char *path) {
-    struct stat statbuf;
-    if (stat(path, &statbuf) != 0) {
-        fprintf(stderr, "cannot get source directory status: %s\n", path);
-        return -1;
-    }
-
-    if (!S_ISDIR(statbuf.st_mode)) {
-        fprintf(stderr, "source directory must be a directory: %s\n", path);
-        return -1;
-    }
-
-    return 1;
-}
-
 /**
  * Check if the path is valid. If it's a relative path,
  * prepend the working path.

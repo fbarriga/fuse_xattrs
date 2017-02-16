@@ -161,14 +161,25 @@ int xmp_unlink(const char *path) {
 
     char *_path = prepend_source_directory(path);
     res = unlink(_path);
-    free(_path);
 
-    if (res == -1)
+    if (res == -1) {
+        free(_path);
         return -errno;
+    }
+
+    char *sidecar_path = get_sidecar_path(_path);
+    if (is_regular_file(sidecar_path)) {
+        if (unlink(sidecar_path) == -1) {
+            error_print("Error removing sidecar file: %s\n", sidecar_path);
+        }
+    }
+    free(sidecar_path);
+    free(_path);
 
     return 0;
 }
 
+// FIXME: remove sidecar
 int xmp_rmdir(const char *path) {
     int res;
     if (xattrs_config.show_sidecar == 0 && filename_is_sidecar(path) == 1)  {
@@ -214,15 +225,32 @@ int xmp_rename(const char *from, const char *to) {
     char *_from = prepend_source_directory(from);
     char *_to = prepend_source_directory(to);
     res = rename(_from, _to);
+
+    if (res == -1) {
+        free(_from);
+        free(_to);
+        return -errno;
+    }
+
+    char *from_sidecar_path = get_sidecar_path(_from);
+    char *to_sidecar_path = get_sidecar_path(_to);
+
+    // FIXME: Remove to_sidecar_path if it exists ?
+    if (is_regular_file(from_sidecar_path)) {
+        if (rename(from_sidecar_path, to_sidecar_path) == -1) {
+            error_print("Error renaming sidecar. from: %s to: %s\n", from_sidecar_path, to_sidecar_path);
+        }
+    }
+    free(from_sidecar_path);
+    free(to_sidecar_path);
+
     free(_from);
     free(_to);
-
-    if (res == -1)
-        return -errno;
 
     return 0;
 }
 
+// TODO: handle sidecar file ?
 int xmp_link(const char *from, const char *to) {
     int res;
     if (xattrs_config.show_sidecar == 0) {

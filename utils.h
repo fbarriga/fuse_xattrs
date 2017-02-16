@@ -43,4 +43,7 @@ char *prepend_source_directory(const char *b);
 const size_t BINARY_SIDECAR_EXT_SIZE;
 const int filename_is_sidecar(const char *string);
 
+int is_directory(const char *path);
+int is_regular_file(const char *path);
+
 #endif //FUSE_XATTRS_UTILS_H
