@@ -14,6 +14,13 @@
 #include "utils.h"
 #include "const.h"
 
+char *prepend_source_directory(const char *a, const char *b) {
+    size_t len = strlen(a) + strlen(b) + 1;
+    char *dst = (char*) malloc(sizeof(char) * len);
+    sprintf(dst, "%s%s", a, b);
+
+    return dst;
+}
 
 char *get_sidecar_path(const char *path)
 {

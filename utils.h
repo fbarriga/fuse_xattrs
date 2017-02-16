@@ -38,5 +38,6 @@ enum namespace {
 enum namespace get_namespace(const char *name);
 char *get_sidecar_path(const char *path);
 char *sanitize_value(const char *value, size_t value_size);
+char *prepend_source_directory(const char *a, const char *b);
 
 #endif //FUSE_XATTRS_UTILS_H

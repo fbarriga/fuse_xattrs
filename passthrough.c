@@ -17,14 +17,21 @@
 #include <fuse.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <dirent.h>
 #include <errno.h>
 
+#include "fuse_xattrs_config.h"
+#include "utils.h"
+
 int xmp_getattr(const char *path, struct stat *stbuf) {
     int res;
 
-    res = lstat(path, stbuf);
+    char *_path = prepend_source_directory(xattrs_config.source_dir, path);
+    res = lstat(_path, stbuf);
+    free(_path);
+
     if (res == -1)
         return -errno;
 
@@ -34,7 +41,10 @@ int xmp_getattr(const char *path, struct stat *stbuf) {
 int xmp_access(const char *path, int mask) {
     int res;
 
-    res = access(path, mask);
+    char *_path = prepend_source_directory(xattrs_config.source_dir, path);
+    res = access(_path, mask);
+    free(_path);
+
     if (res == -1)
         return -errno;
 
@@ -44,7 +54,10 @@ int xmp_access(const char *path, int mask) {
 int xmp_readlink(const char *path, char *buf, size_t size) {
     int res;
 
-    res = readlink(path, buf, size - 1);
+    char *_path = prepend_source_directory(xattrs_config.source_dir, path);
+    res = readlink(_path, buf, size - 1);
+    free(_path);
+
     if (res == -1)
         return -errno;
 
@@ -61,7 +74,10 @@ int xmp_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
     (void) offset;
     (void) fi;
 
-    dp = opendir(path);
+    char *_path = prepend_source_directory(xattrs_config.source_dir, path);
+    dp = opendir(_path);
+    free(_path);
+
     if (dp == NULL)
         return -errno;
 
@@ -80,17 +96,20 @@ int xmp_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 
 int xmp_mknod(const char *path, mode_t mode, dev_t rdev) {
     int res;
+    char *_path = prepend_source_directory(xattrs_config.source_dir, path);
 
     /* On Linux this could just be 'mknod(path, mode, rdev)' but this
        is more portable */
     if (S_ISREG(mode)) {
-        res = open(path, O_CREAT | O_EXCL | O_WRONLY, mode);
+        res = open(_path, O_CREAT | O_EXCL | O_WRONLY, mode);
         if (res >= 0)
             res = close(res);
     } else if (S_ISFIFO(mode))
-        res = mkfifo(path, mode);
+        res = mkfifo(_path, mode);
     else
-        res = mknod(path, mode, rdev);
+        res = mknod(_path, mode, rdev);
+
+    free(_path);
     if (res == -1)
         return -errno;
 
@@ -100,7 +119,10 @@ int xmp_mknod(const char *path, mode_t mode, dev_t rdev) {
 int xmp_mkdir(const char *path, mode_t mode) {
     int res;
 
-    res = mkdir(path, mode);
+    char *_path = prepend_source_directory(xattrs_config.source_dir, path);
+    res = mkdir(_path, mode);
+    free(_path);
+
     if (res == -1)
         return -errno;
 
@@ -110,7 +132,10 @@ int xmp_mkdir(const char *path, mode_t mode) {
 int xmp_unlink(const char *path) {
     int res;
 
-    res = unlink(path);
+    char *_path = prepend_source_directory(xattrs_config.source_dir, path);
+    res = unlink(_path);
+    free(_path);
+
     if (res == -1)
         return -errno;
 
@@ -120,7 +145,10 @@ int xmp_unlink(const char *path) {
 int xmp_rmdir(const char *path) {
     int res;
 
-    res = rmdir(path);
+    char *_path = prepend_source_directory(xattrs_config.source_dir, path);
+    res = rmdir(_path);
+    free(_path);
+
     if (res == -1)
         return -errno;
 
@@ -130,7 +158,10 @@ int xmp_rmdir(const char *path) {
 int xmp_symlink(const char *from, const char *to) {
     int res;
 
-    res = symlink(from, to);
+    char *_to = prepend_source_directory(xattrs_config.source_dir, to);
+    res = symlink(from, _to);
+    free(_to);
+
     if (res == -1)
         return -errno;
 
@@ -140,7 +171,12 @@ int xmp_symlink(const char *from, const char *to) {
 int xmp_rename(const char *from, const char *to) {
     int res;
 
-    res = rename(from, to);
+    char *_from = prepend_source_directory(xattrs_config.source_dir, from);
+    char *_to = prepend_source_directory(xattrs_config.source_dir, to);
+    res = rename(_from, _to);
+    free(_from);
+    free(_to);
+
     if (res == -1)
         return -errno;
 
@@ -150,7 +186,12 @@ int xmp_rename(const char *from, const char *to) {
 int xmp_link(const char *from, const char *to) {
     int res;
 
-    res = link(from, to);
+    char *_from = prepend_source_directory(xattrs_config.source_dir, from);
+    char *_to = prepend_source_directory(xattrs_config.source_dir, to);
+    res = link(_from, _to);
+    free(_from);
+    free(_to);
+
     if (res == -1)
         return -errno;
 
@@ -160,7 +201,10 @@ int xmp_link(const char *from, const char *to) {
 int xmp_chmod(const char *path, mode_t mode) {
     int res;
 
-    res = chmod(path, mode);
+    char *_path = prepend_source_directory(xattrs_config.source_dir, path);
+    res = chmod(_path, mode);
+    free(_path);
+
     if (res == -1)
         return -errno;
 
@@ -170,7 +214,10 @@ int xmp_chmod(const char *path, mode_t mode) {
 int xmp_chown(const char *path, uid_t uid, gid_t gid) {
     int res;
 
-    res = lchown(path, uid, gid);
+    char *_path = prepend_source_directory(xattrs_config.source_dir, path);
+    res = lchown(_path, uid, gid);
+    free(_path);
+
     if (res == -1)
         return -errno;
 
@@ -180,7 +227,10 @@ int xmp_chown(const char *path, uid_t uid, gid_t gid) {
 int xmp_truncate(const char *path, off_t size) {
     int res;
 
-    res = truncate(path, size);
+    char *_path = prepend_source_directory(xattrs_config.source_dir, path);
+    res = truncate(_path, size);
+    free(_path);
+
     if (res == -1)
         return -errno;
 
@@ -194,8 +244,10 @@ struct fuse_file_info *fi)
     (void) fi;
     int res;
 
+    char *_path = prepend_source_directory(xattrs_config.source_dir, path);
     /* don't use utime/utimes since they follow symlinks */
-    res = utimensat(0, path, ts, AT_SYMLINK_NOFOLLOW);
+    res = utimensat(0, _path, ts, AT_SYMLINK_NOFOLLOW);
+    free(_path);
     if (res == -1)
         return -errno;
 
@@ -206,7 +258,10 @@ struct fuse_file_info *fi)
 int xmp_open(const char *path, struct fuse_file_info *fi) {
     int res;
 
-    res = open(path, fi->flags);
+    char *_path = prepend_source_directory(xattrs_config.source_dir, path);
+    res = open(_path, fi->flags);
+    free(_path);
+
     if (res == -1)
         return -errno;
 
@@ -220,7 +275,10 @@ int xmp_read(const char *path, char *buf, size_t size, off_t offset,
     int res;
 
     (void) fi;
-    fd = open(path, O_RDONLY);
+    char *_path = prepend_source_directory(xattrs_config.source_dir, path);
+    fd = open(_path, O_RDONLY);
+    free(_path);
+
     if (fd == -1)
         return -errno;
 
@@ -238,7 +296,10 @@ int xmp_write(const char *path, const char *buf, size_t size,
     int res;
 
     (void) fi;
-    fd = open(path, O_WRONLY);
+    char *_path = prepend_source_directory(xattrs_config.source_dir, path);
+    fd = open(_path, O_WRONLY);
+    free(_path);
+
     if (fd == -1)
         return -errno;
 
@@ -253,7 +314,10 @@ int xmp_write(const char *path, const char *buf, size_t size,
 int xmp_statfs(const char *path, struct statvfs *stbuf) {
     int res;
 
-    res = statvfs(path, stbuf);
+    char *_path = prepend_source_directory(xattrs_config.source_dir, path);
+    res = statvfs(_path, stbuf);
+    free(_path);
+
     if (res == -1)
         return -errno;
 
@@ -292,7 +356,10 @@ int xmp_fallocate(const char *path, int mode,
     if (mode)
         return -EOPNOTSUPP;
 
-    fd = open(path, O_WRONLY);
+    char *_path = concat(xattrs_config.source_dir, path);
+    fd = open(_path, O_WRONLY);
+    free(_path);
+
     if (fd == -1)
         return -errno;
 

@@ -14,7 +14,7 @@ http://github.com/fbarriga/fuse_xattrs
 
 Once fuse_xattrs is installed (see next section) running it is very simple:
 
-    fuse_xattrs mountpoint
+    fuse_xattrs source_directory mountpoint
 
 To unmount the filesystem:
 

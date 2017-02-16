@@ -20,7 +20,6 @@ BUGS
 FEATURES
 --------
 
-- Add option to mirror a specific directory instead of /
 - binary_storage:
   - crc32
   - make it endian-independent:

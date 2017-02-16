@@ -45,7 +45,7 @@ set(SOURCE_FILES
         utils.c
         utils.h
         const.h
-)
+        fuse_xattrs_config.h)
 
 add_executable(fuse_xattrs ${SOURCE_FILES})
 
