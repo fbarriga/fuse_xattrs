@@ -46,6 +46,8 @@ add_definitions (-D_FILE_OFFSET_BITS=64)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMakeModules/")
 
+set(CMAKE_C_FLAGS "-O3")
+
 option(ENABLE_CODECOVERAGE "Enable code coverage testing support" )
 if(ENABLE_CODECOVERAGE)
     include (CodeCoverage)
