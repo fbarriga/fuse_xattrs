@@ -1,12 +1,10 @@
 TODO
 ----
 
+- Run as single-threaded by default (until we're sure that this is thread-safe)
 - Add mutex to avoid issues when two processes are modifying the same file.
 - Handle permission issues with .xattr files
-- Add options to:
-  - Change extension name of sidecar files
 - Code Quality
-  - Valgrind support
   - C unit tests
   - Valgrind report on travis
   - Upload travis generated code coverage somewhere
