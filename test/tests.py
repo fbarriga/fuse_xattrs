@@ -22,8 +22,8 @@ import os
 
 class TestXAttrs(unittest.TestCase):
     def setUp(self):
-        self.randomFile = "./mount/tmp/foo.txt"
-        self.randomFileSidecar = "./mount/tmp/foo.txt.xattr"
+        self.randomFile = "./mount/foo.txt"
+        self.randomFileSidecar = "./mount/foo.txt.xattr"
         if os.path.isfile(self.randomFile):
             os.remove(self.randomFile)
         Path(self.randomFile).touch()
@@ -33,6 +33,8 @@ class TestXAttrs(unittest.TestCase):
 
     def tearDown(self):
         os.remove(self.randomFile)
+        if os.path.isfile(self.randomFileSidecar):
+            os.remove(self.randomFileSidecar)
 
     def test_xattr_set(self):
         xattr.setxattr(self.randomFile, "user.foo", bytes("bar", "utf-8"))
@@ -146,9 +148,9 @@ class TestXAttrs(unittest.TestCase):
 
     def test_xattr_list(self):
         enc = "utf-8"
-        key1 = "user.foo"
-        key2 = "user.foo2"
-        key3 = "user.foo3"
+        key1 = b"user.foo"
+        key2 = b"user.foo2"
+        key3 = b"user.foo3"
         value = "bar"
 
         # set 3 keys
@@ -175,7 +177,7 @@ class TestXAttrs(unittest.TestCase):
         # list
         attrs = xattr.listxattr(self.randomFile)
         self.assertEqual(len(attrs), 1)
-        self.assertTrue(key in attrs)
+        self.assertTrue(key.encode() in attrs)
 
         # read
         read_value = xattr.getxattr(self.randomFile, key)
