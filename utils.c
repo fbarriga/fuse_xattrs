@@ -62,20 +62,32 @@ const int filename_is_sidecar(const char *string) {
     return 0;
 }
 
+#define USER_NAMESPACE "user."
+#define SYSTEM_NAMESPACE "system."
+#define SECURITY_NAMESPACE "security."
+#define TRUSTED_NAMESPACE "trusted."
+
+const size_t USER_NAMESPACE_SIZE     = strlen(USER_NAMESPACE);
+const size_t SYSTEM_NAMESPACE_SIZE   = strlen(SYSTEM_NAMESPACE);
+const size_t SECURITY_NAMESPACE_SIZE = strlen(SECURITY_NAMESPACE);
+const size_t THRUSTED_NAMESPACE_SIZE = strlen(TRUSTED_NAMESPACE);
+
 enum namespace get_namespace(const char *name) {
-    if (strncmp(name, "user.", strlen("user.")) == 0) {
+    size_t name_size = strlen(name);
+
+    if (name_size > USER_NAMESPACE_SIZE && memcmp(name, USER_NAMESPACE, USER_NAMESPACE_SIZE) == 0) {
         return USER;
     }
 
-    if (strncmp(name, "system.", strlen("system.")) == 0) {
+    if (name_size > SYSTEM_NAMESPACE_SIZE && memcmp(name, SYSTEM_NAMESPACE, SYSTEM_NAMESPACE_SIZE) == 0) {
         return SYSTEM;
     }
 
-    if (strncmp(name, "security.", strlen("security.")) == 0) {
+    if (name_size > SECURITY_NAMESPACE_SIZE && memcmp(name, SECURITY_NAMESPACE, SECURITY_NAMESPACE_SIZE) == 0) {
         return SECURITY;
     }
 
-    if (strncmp(name, "trusted.", strlen("trusted.")) == 0) {
+    if (name_size > THRUSTED_NAMESPACE_SIZE && memcmp(name, TRUSTED_NAMESPACE, THRUSTED_NAMESPACE_SIZE) == 0) {
         return TRUSTED;
     }
 
