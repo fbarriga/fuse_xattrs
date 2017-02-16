@@ -22,13 +22,15 @@
 #include <dirent.h>
 #include <errno.h>
 
-#include "fuse_xattrs_config.h"
-
 #include "xattrs_config.h"
 #include "utils.h"
 
 int xmp_getattr(const char *path, struct stat *stbuf) {
     int res;
+
+    if (xattrs_config.show_sidecar == 0 && filename_is_sidecar(path) == 1)  {
+        return -ENOENT;
+    }
 
     char *_path = prepend_source_directory(xattrs_config.source_dir, path);
     res = lstat(_path, stbuf);
@@ -42,6 +44,9 @@ int xmp_getattr(const char *path, struct stat *stbuf) {
 
 int xmp_access(const char *path, int mask) {
     int res;
+    if (xattrs_config.show_sidecar == 0 && filename_is_sidecar(path) == 1)  {
+        return -ENOENT;
+    }
 
     char *_path = prepend_source_directory(xattrs_config.source_dir, path);
     res = access(_path, mask);
@@ -55,6 +60,9 @@ int xmp_access(const char *path, int mask) {
 
 int xmp_readlink(const char *path, char *buf, size_t size) {
     int res;
+    if (xattrs_config.show_sidecar == 0 && filename_is_sidecar(path) == 1)  {
+        return -ENOENT;
+    }
 
     char *_path = prepend_source_directory(xattrs_config.source_dir, path);
     res = readlink(_path, buf, size - 1);
@@ -84,6 +92,10 @@ int xmp_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
         return -errno;
 
     while ((de = readdir(dp)) != NULL) {
+        if (xattrs_config.show_sidecar == 0 && filename_is_sidecar(de->d_name) == 1) {
+            continue;
+        }
+
         struct stat st;
         memset(&st, 0, sizeof(st));
         st.st_ino = de->d_ino;
@@ -98,6 +110,10 @@ int xmp_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 
 int xmp_mknod(const char *path, mode_t mode, dev_t rdev) {
     int res;
+    if (xattrs_config.show_sidecar == 0 && filename_is_sidecar(path) == 1)  {
+        return -ENOENT;
+    }
+
     char *_path = prepend_source_directory(xattrs_config.source_dir, path);
 
     /* On Linux this could just be 'mknod(path, mode, rdev)' but this
@@ -120,6 +136,9 @@ int xmp_mknod(const char *path, mode_t mode, dev_t rdev) {
 
 int xmp_mkdir(const char *path, mode_t mode) {
     int res;
+    if (xattrs_config.show_sidecar == 0 && filename_is_sidecar(path) == 1)  {
+        return -ENOENT;
+    }
 
     char *_path = prepend_source_directory(xattrs_config.source_dir, path);
     res = mkdir(_path, mode);
@@ -133,6 +152,9 @@ int xmp_mkdir(const char *path, mode_t mode) {
 
 int xmp_unlink(const char *path) {
     int res;
+    if (xattrs_config.show_sidecar == 0 && filename_is_sidecar(path) == 1)  {
+        return -ENOENT;
+    }
 
     char *_path = prepend_source_directory(xattrs_config.source_dir, path);
     res = unlink(_path);
@@ -146,6 +168,9 @@ int xmp_unlink(const char *path) {
 
 int xmp_rmdir(const char *path) {
     int res;
+    if (xattrs_config.show_sidecar == 0 && filename_is_sidecar(path) == 1)  {
+        return -ENOENT;
+    }
 
     char *_path = prepend_source_directory(xattrs_config.source_dir, path);
     res = rmdir(_path);
@@ -159,6 +184,11 @@ int xmp_rmdir(const char *path) {
 
 int xmp_symlink(const char *from, const char *to) {
     int res;
+    if (xattrs_config.show_sidecar == 0) {
+        if (filename_is_sidecar(from) == 1 || filename_is_sidecar(to)) {
+            return -ENOENT;
+        }
+    }
 
     char *_to = prepend_source_directory(xattrs_config.source_dir, to);
     res = symlink(from, _to);
@@ -172,6 +202,11 @@ int xmp_symlink(const char *from, const char *to) {
 
 int xmp_rename(const char *from, const char *to) {
     int res;
+    if (xattrs_config.show_sidecar == 0) {
+        if (filename_is_sidecar(from) == 1 || filename_is_sidecar(to)) {
+            return -ENOENT;
+        }
+    }
 
     char *_from = prepend_source_directory(xattrs_config.source_dir, from);
     char *_to = prepend_source_directory(xattrs_config.source_dir, to);
@@ -187,6 +222,11 @@ int xmp_rename(const char *from, const char *to) {
 
 int xmp_link(const char *from, const char *to) {
     int res;
+    if (xattrs_config.show_sidecar == 0) {
+        if (filename_is_sidecar(from) == 1 || filename_is_sidecar(to)) {
+            return -ENOENT;
+        }
+    }
 
     char *_from = prepend_source_directory(xattrs_config.source_dir, from);
     char *_to = prepend_source_directory(xattrs_config.source_dir, to);
@@ -202,6 +242,9 @@ int xmp_link(const char *from, const char *to) {
 
 int xmp_chmod(const char *path, mode_t mode) {
     int res;
+    if (xattrs_config.show_sidecar == 0 && filename_is_sidecar(path) == 1)  {
+        return -ENOENT;
+    }
 
     char *_path = prepend_source_directory(xattrs_config.source_dir, path);
     res = chmod(_path, mode);
@@ -215,6 +258,9 @@ int xmp_chmod(const char *path, mode_t mode) {
 
 int xmp_chown(const char *path, uid_t uid, gid_t gid) {
     int res;
+    if (xattrs_config.show_sidecar == 0 && filename_is_sidecar(path) == 1)  {
+        return -ENOENT;
+    }
 
     char *_path = prepend_source_directory(xattrs_config.source_dir, path);
     res = lchown(_path, uid, gid);
@@ -228,6 +274,9 @@ int xmp_chown(const char *path, uid_t uid, gid_t gid) {
 
 int xmp_truncate(const char *path, off_t size) {
     int res;
+    if (xattrs_config.show_sidecar == 0 && filename_is_sidecar(path) == 1)  {
+        return -ENOENT;
+    }
 
     char *_path = prepend_source_directory(xattrs_config.source_dir, path);
     res = truncate(_path, size);
@@ -243,6 +292,10 @@ int xmp_truncate(const char *path, off_t size) {
 int xmp_utimens(const char *path, const struct timespec ts[2],
 struct fuse_file_info *fi)
 {
+    if (xattrs_config.show_sidecar == 0 && filename_is_sidecar(path) == 1)  {
+        return -ENOENT;
+    }
+
     (void) fi;
     int res;
 
@@ -259,6 +312,9 @@ struct fuse_file_info *fi)
 
 int xmp_open(const char *path, struct fuse_file_info *fi) {
     int res;
+    if (xattrs_config.show_sidecar == 0 && filename_is_sidecar(path) == 1)  {
+        return -ENOENT;
+    }
 
     char *_path = prepend_source_directory(xattrs_config.source_dir, path);
     res = open(_path, fi->flags);
@@ -272,7 +328,12 @@ int xmp_open(const char *path, struct fuse_file_info *fi) {
 }
 
 int xmp_read(const char *path, char *buf, size_t size, off_t offset,
-             struct fuse_file_info *fi) {
+             struct fuse_file_info *fi)
+{
+    if (xattrs_config.show_sidecar == 0 && filename_is_sidecar(path) == 1)  {
+        return -ENOENT;
+    }
+
     int fd;
     int res;
 
@@ -293,7 +354,12 @@ int xmp_read(const char *path, char *buf, size_t size, off_t offset,
 }
 
 int xmp_write(const char *path, const char *buf, size_t size,
-              off_t offset, struct fuse_file_info *fi) {
+              off_t offset, struct fuse_file_info *fi)
+{
+    if (xattrs_config.show_sidecar == 0 && filename_is_sidecar(path) == 1)  {
+        return -ENOENT;
+    }
+
     int fd;
     int res;
 
@@ -315,6 +381,9 @@ int xmp_write(const char *path, const char *buf, size_t size,
 
 int xmp_statfs(const char *path, struct statvfs *stbuf) {
     int res;
+    if (xattrs_config.show_sidecar == 0 && filename_is_sidecar(path) == 1)  {
+        return -ENOENT;
+    }
 
     char *_path = prepend_source_directory(xattrs_config.source_dir, path);
     res = statvfs(_path, stbuf);
@@ -350,6 +419,10 @@ int xmp_fsync(const char *path, int isdatasync,
 int xmp_fallocate(const char *path, int mode,
                   off_t offset, off_t length, struct fuse_file_info *fi)
 {
+    if (xattrs_config.show_sidecar == 0 && filename_is_sidecar(path) == 1)  {
+        return -ENOENT;
+    }
+
     int fd;
     int res;
 

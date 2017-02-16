@@ -11,6 +11,7 @@
 #define FUSE_XATTRS_CONFIG_H
 
 struct xattrs_config {
+    int show_sidecar;
     const char *source_dir;
 } xattrs_config;
 

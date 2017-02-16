@@ -5,7 +5,6 @@ TODO
 - Handle permission issues with .xattr files
 - Add options to:
   - Change extension name of sidecar files
-  - Hide sidecar files
 - Code Quality
   - Valgrind support
   - C unit tests

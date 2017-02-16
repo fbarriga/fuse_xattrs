@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <stddef.h>
 
 #include <fuse.h>
 #include <sys/xattr.h>
@@ -35,6 +36,10 @@
 
 static int xmp_setxattr(const char *path, const char *name, const char *value, size_t size, int flags)
 {
+    if (xattrs_config.show_sidecar == 0 && filename_is_sidecar(path) == 1)  {
+        return -ENOENT;
+    }
+
     if (get_namespace(name) != USER) {
         debug_print("Only user namespace is supported. name=%s\n", name);
         return -ENOTSUP;
@@ -66,6 +71,10 @@ static int xmp_setxattr(const char *path, const char *name, const char *value, s
 
 static int xmp_getxattr(const char *path, const char *name, char *value, size_t size)
 {
+    if (xattrs_config.show_sidecar == 0 && filename_is_sidecar(path) == 1)  {
+        return -ENOENT;
+    }
+
     if (get_namespace(name) != USER) {
         debug_print("Only user namespace is supported. name=%s\n", name);
         return -ENOTSUP;
@@ -85,6 +94,10 @@ static int xmp_getxattr(const char *path, const char *name, char *value, size_t 
 
 static int xmp_listxattr(const char *path, char *list, size_t size)
 {
+    if (xattrs_config.show_sidecar == 0 && filename_is_sidecar(path) == 1)  {
+        return -ENOENT;
+    }
+
     if (size > XATTR_LIST_MAX) {
         debug_print("The size of the list of attribute names for this file exceeds the system-imposed limit.\n");
         return -E2BIG;
@@ -100,6 +113,10 @@ static int xmp_listxattr(const char *path, char *list, size_t size)
 
 static int xmp_removexattr(const char *path, const char *name)
 {
+    if (xattrs_config.show_sidecar == 0 && filename_is_sidecar(path) == 1)  {
+        return -ENOENT;
+    }
+
     if (get_namespace(name) != USER) {
         debug_print("Only user namespace is supported. name=%s\n", name);
         return -ENOTSUP;
@@ -150,20 +167,6 @@ static struct fuse_operations xmp_oper = {
         .removexattr = xmp_removexattr,
 };
 
-
-enum {
-    KEY_HELP,
-    KEY_VERSION,
-};
-
-
-static struct fuse_opt xattrs_opts[] = {
-        FUSE_OPT_KEY("-V", KEY_VERSION),
-        FUSE_OPT_KEY("--version", KEY_VERSION),
-        FUSE_OPT_KEY("-h", KEY_HELP),
-        FUSE_OPT_KEY("--help", KEY_HELP),
-        FUSE_OPT_END
-};
 
 int is_directory(const char *path) {
     struct stat statbuf;
@@ -222,6 +225,23 @@ const char *sanitized_source_directory(const char *path) {
     return absolute_path;
 }
 
+enum {
+    KEY_HELP,
+    KEY_VERSION,
+};
+
+#define FUSE_XATTRS_OPT(t, p, v) { t, offsetof(struct xattrs_config, p), v }
+
+static struct fuse_opt xattrs_opts[] = {
+        FUSE_XATTRS_OPT("show_sidecar",    show_sidecar, 1),
+
+        FUSE_OPT_KEY("-V",                 KEY_VERSION),
+        FUSE_OPT_KEY("--version",          KEY_VERSION),
+        FUSE_OPT_KEY("-h",                 KEY_HELP),
+        FUSE_OPT_KEY("--help",             KEY_HELP),
+        FUSE_OPT_END
+};
+
 static int xattrs_opt_proc(void *data, const char *arg, int key,
                            struct fuse_args *outargs) {
     (void) data;
@@ -243,6 +263,7 @@ static int xattrs_opt_proc(void *data, const char *arg, int key,
                             "    -V   --version   print version\n"
                             "\n"
                             "FUSE XATTRS options:\n"
+                            "    -o show_sidecar  don't hide sidecar files\n"
                             "\n", outargs->argv[0]);
 
             fuse_opt_add_arg(outargs, "-ho");

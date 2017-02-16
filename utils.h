@@ -40,4 +40,7 @@ char *get_sidecar_path(const char *path);
 char *sanitize_value(const char *value, size_t value_size);
 char *prepend_source_directory(const char *a, const char *b);
 
+const size_t BINARY_SIDECAR_EXT_SIZE;
+const int filename_is_sidecar(const char *string);
+
 #endif //FUSE_XATTRS_UTILS_H

@@ -44,6 +44,24 @@ char *sanitize_value(const char *value, size_t value_size)
     return sanitized;
 }
 
+
+const size_t BINARY_SIDECAR_EXT_SIZE = strlen(BINARY_SIDECAR_EXT);
+
+const int filename_is_sidecar(const char *string) {
+    if(string == NULL)
+        return 0;
+
+    size_t size = strlen(string);
+    if (size <= BINARY_SIDECAR_EXT_SIZE)
+        return 0;
+
+    if (memcmp(string+size-BINARY_SIDECAR_EXT_SIZE, BINARY_SIDECAR_EXT, BINARY_SIDECAR_EXT_SIZE) == 0) {
+        return 1;
+    }
+
+    return 0;
+}
+
 enum namespace get_namespace(const char *name) {
     if (strncmp(name, "user.", strlen("user.")) == 0) {
         return USER;
