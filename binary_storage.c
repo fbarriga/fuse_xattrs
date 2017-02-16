@@ -43,8 +43,12 @@ void __print_on_memory_attr(struct on_memory_attr *attr)
 
 void __free_on_memory_attr(struct on_memory_attr *attr)
 {
-    free(attr->name);
-    free(attr->value);
+    if(attr->name != NULL)
+        free(attr->name);
+
+    if(attr->value != NULL)
+        free(attr->value);
+
     free(attr);
 }
 
@@ -131,6 +135,8 @@ struct on_memory_attr *__read_on_memory_attr(size_t *offset, char *buffer, size_
 {
     debug_print("offset=%zu\n", *offset);
     struct on_memory_attr *attr = malloc(sizeof(struct on_memory_attr));
+    attr->name = NULL;
+    attr->value = NULL;
 
     ////////////////////////////////
     // Read name size
