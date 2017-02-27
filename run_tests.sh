@@ -4,6 +4,12 @@ mkdir -p test/mount
 mkdir -p test/source
 ./fuse_xattrs -o nonempty test/source/ test/mount/
 
+if [ $? -ne 0 ]; then
+    echo "Error mounting the filesystem."
+    echo "Do you have permissions?"
+    exit 1
+fi
+
 pushd test
 
 set +e
