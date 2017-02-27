@@ -1,7 +1,7 @@
 TODO
 ----
 
-- Run as single-threaded by default (until we're sure that this is thread-safe)
+- Check if it's thread-safe
 - Add mutex to avoid issues when two processes are modifying the same file.
 - Handle permission issues with .xattr files
 - Code Quality

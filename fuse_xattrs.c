@@ -279,5 +279,8 @@ int main(int argc, char *argv[]) {
     }
 
     umask(0);
+
+    // disable multi-threading
+    fuse_opt_add_arg(&args, "-s");
     return fuse_main(args.argc, args.argv, &xmp_oper, NULL);
 }

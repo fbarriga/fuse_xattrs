@@ -1,4 +1,4 @@
-Release 0.2 (2017-02-16)
+Release 0.2 (2017-02-26)
 ------------------------
 
 * Fix tests
@@ -8,6 +8,8 @@ Release 0.2 (2017-02-16)
 * Fix crash
 * Remove sidecar when removing a file (same for renaming)
 * Optimization: don't open/close files for every operation
+* Enable optimization flags on compilation (-O3)
+* Force to run in a single-thread
 
 Release 0.1 (2016-10-23)
 ------------------------
