@@ -76,7 +76,7 @@ target_link_libraries (
 install (TARGETS fuse_xattrs DESTINATION bin)
 install (
         FILES ${CMAKE_CURRENT_BINARY_DIR}/fuse_xattrs.1
-        DESTINATION man/man1
+        DESTINATION share/man/man1
         COMPONENT doc
 )
 
