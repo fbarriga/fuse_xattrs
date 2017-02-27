@@ -20,6 +20,12 @@ To unmount the filesystem:
 
     fusermount -u mountpoint
 
+## Distribution packages
+
+Archlinux (https://aur.archlinux.org/packages/fuse_xattrs/):
+
+    yaourt -S fuse_xattrs
+
 
 ## Building
 
