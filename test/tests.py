@@ -22,17 +22,30 @@ import os
 
 class TestXAttrs(unittest.TestCase):
     def setUp(self):
-        self.randomFile = "./mount/foo.txt"
-        self.randomFileSidecar = "./mount/foo.txt.xattr"
+        self.sourceDir = "./source/"
+        self.mountDir = "./mount/"
+        self.randomFilename = "foo.txt"
+
+        self.randomFile = self.mountDir + self.randomFilename
+        self.randomFileSidecar = self.randomFile + ".xattr"
+
+        self.randomSourceFile = self.sourceDir + self.randomFilename
+        self.randomSourceFileSidecar = self.randomSourceFile + ".xattr"
+
         if os.path.isfile(self.randomFile):
             os.remove(self.randomFile)
-        Path(self.randomFile).touch()
 
         if os.path.isfile(self.randomFileSidecar):
             os.remove(self.randomFileSidecar)
 
+        Path(self.randomFile).touch()
+        self.assertTrue(os.path.isfile(self.randomFile))
+        self.assertFalse(os.path.isfile(self.randomFileSidecar))
+
     def tearDown(self):
-        os.remove(self.randomFile)
+        if os.path.isfile(self.randomFile):
+            os.remove(self.randomFile)
+
         if os.path.isfile(self.randomFileSidecar):
             os.remove(self.randomFileSidecar)
 
@@ -213,6 +226,51 @@ class TestXAttrs(unittest.TestCase):
         self.assertEqual(ex.exception.errno, 61)
         self.assertEqual(ex.exception.strerror, "No data available")
 
+    def test_hide_sidecar(self):
+        xattr.setxattr(self.randomFile, "user.foo", bytes("bar", "utf-8"))
+        self.assertTrue(os.path.isfile(self.randomFile))
+        self.assertFalse(os.path.isfile(self.randomFileSidecar))
+
+        sidecarFilename = self.randomFilename + ".xattr"
+        files_mount = os.listdir(self.mountDir)
+        self.assertTrue(self.randomFilename in files_mount)
+        self.assertTrue(sidecarFilename not in files_mount)
+
+        files_source = os.listdir(self.sourceDir)
+        self.assertTrue(self.randomFilename in files_source)
+        self.assertTrue(sidecarFilename in files_source)
+
+    def test_create_new_file(self):
+        test_filename = "test_create_new_file"
+        self.assertFalse(os.path.isfile(self.sourceDir + test_filename))
+        self.assertFalse(os.path.isfile(self.mountDir + test_filename))
+
+        open(self.mountDir + test_filename, "a").close()
+        self.assertTrue(os.path.isfile(self.sourceDir + test_filename))
+        self.assertTrue(os.path.isfile(self.mountDir + test_filename))
+        # FIXME: if one assert fails, the file isn't going to be deleted
+        os.remove(self.mountDir + test_filename)
+
+    def test_remove_file_with_sidecar(self):
+        xattr.setxattr(self.randomFile, "user.foo", bytes("bar", "utf-8"))
+        self.assertTrue(os.path.isfile(self.randomFile))
+        self.assertTrue(os.path.isfile(self.randomSourceFile))
+        self.assertTrue(os.path.isfile(self.randomSourceFileSidecar))
+
+        os.remove(self.randomFile)
+        self.assertFalse(os.path.isfile(self.randomFile))
+        self.assertFalse(os.path.isfile(self.randomSourceFile))
+        self.assertFalse(os.path.isfile(self.randomSourceFileSidecar))
+
+    def test_remove_file_without_sidecar(self):
+        self.assertTrue(os.path.isfile(self.randomFile))
+        self.assertTrue(os.path.isfile(self.randomSourceFile))
+        self.assertFalse(os.path.isfile(self.randomSourceFileSidecar))
+
+        os.remove(self.randomFile)
+        self.assertFalse(os.path.isfile(self.randomFile))
+        self.assertFalse(os.path.isfile(self.randomSourceFile))
+        self.assertFalse(os.path.isfile(self.randomSourceFileSidecar))
 
 if __name__ == '__main__':
     unittest.main()
