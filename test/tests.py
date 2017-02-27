@@ -14,6 +14,9 @@ import xattr
 from pathlib import Path
 import os
 
+if xattr.__version__ != '0.9.1':
+    print("WARNING, only tested with xattr version 0.9.1")
+
 # TODO
 # - listxattr: list too long
 # - sidecar file permissions
@@ -161,9 +164,9 @@ class TestXAttrs(unittest.TestCase):
 
     def test_xattr_list(self):
         enc = "utf-8"
-        key1 = b"user.foo"
-        key2 = b"user.foo2"
-        key3 = b"user.foo3"
+        key1 = "user.foo"
+        key2 = "user.foo2"
+        key3 = "user.foo3"
         value = "bar"
 
         # set 3 keys
@@ -190,7 +193,7 @@ class TestXAttrs(unittest.TestCase):
         # list
         attrs = xattr.listxattr(self.randomFile)
         self.assertEqual(len(attrs), 1)
-        self.assertTrue(key.encode() in attrs)
+        self.assertEqual(attrs[0], key)
 
         # read
         read_value = xattr.getxattr(self.randomFile, key)
