@@ -197,7 +197,7 @@ int __write_to_file(FILE *file, const char *name, const char *value, const size_
 
 #ifdef DEBUG
     char *sanitized_value = sanitize_value(value, value_size);
-    debug_print("name=%s sanitized_value=%s value_size=%zu\n", name, sanitized_value, value_size);
+    debug_print("name='%s' name_size=%zu sanitized_value='%s' value_size=%zu\n", name, name_size, sanitized_value, value_size);
     free(sanitized_value);
 #endif
 
@@ -213,8 +213,11 @@ int __write_to_file(FILE *file, const char *name, const char *value, const size_
     if (fwrite(&value_size, sizeof(size_t), 1, file) != 1) {
         return -1;
     }
-    if (fwrite(value, value_size, 1, file) != 1) {
-        return -1;
+    // write value content only if we have something to write.
+    if (value_size > 0) {
+        if (fwrite(value, value_size, 1, file) != 1) {
+            return -1;
+        }
     }
 
     return 0;

@@ -120,6 +120,14 @@ class TestXAttrs(unittest.TestCase):
         read_value = xattr.getxattr(self.randomFile, key)
         self.assertEqual(value, read_value.decode(enc))
 
+    def test_xattr_set_empty(self):
+        enc = "utf-8"
+        key = "user.foo"
+        value = ""
+        xattr.setxattr(self.randomFile, key, bytes(value, enc))
+        read_value = xattr.getxattr(self.randomFile, key)
+        self.assertEqual(value, read_value.decode(enc))
+
     def test_xattr_set_override(self):
         enc = "utf-8"
         key = "user.foo"
