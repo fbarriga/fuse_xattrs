@@ -9,7 +9,11 @@
   See the file COPYING.
 */
 
-#include <fuse.h>
+#ifdef __APPLE__
+    #include <osxfuse/fuse.h>
+#else
+    #include <fuse.h>
+#endif
 
 int xmp_getattr(const char *path, struct stat *stbuf);
 int xmp_access(const char *path, int mask);

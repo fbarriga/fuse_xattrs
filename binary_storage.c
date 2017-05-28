@@ -17,7 +17,11 @@
 #include "utils.h"
 #include "fuse_xattrs_config.h"
 
-#include <attr/xattr.h>
+#include <sys/xattr.h>
+
+#ifndef ENOATTR
+    #define ENOATTR ENODATA
+#endif
 
 struct on_memory_attr {
     u_int16_t name_size;
@@ -197,7 +201,7 @@ int __write_to_file(FILE *file, const char *name, const char *value, const size_
 
 #ifdef DEBUG
     char *sanitized_value = sanitize_value(value, value_size);
-    debug_print("name='%s' name_size=%zu sanitized_value='%s' value_size=%zu\n", name, name_size, sanitized_value, value_size);
+    debug_print("name='%s' name_size=%hu sanitized_value='%s' value_size=%zu\n", name, name_size, sanitized_value, value_size);
     free(sanitized_value);
 #endif
 
@@ -230,7 +234,7 @@ int __write_to_file(FILE *file, const char *name, const char *value, const size_
  * @param value - attribute value. size < XATTR_SIZE_MAX
  * @param size
  * @param flags - XATTR_CREATE and/or XATTR_REPLACE
- * @return On success, zero is returned.  On failure, -errno is returnted.
+ * @return On success, zero is returned.  On failure, -errno is returned.
  */
 int binary_storage_write_key(const char *path, const char *name, const char *value, size_t size, int flags)
 {
@@ -245,7 +249,7 @@ int binary_storage_write_key(const char *path, const char *name, const char *val
 
     if (buffer == NULL && buffer_size == -ENOENT && flags & XATTR_REPLACE) {
         error_print("No xattr. (flag XATTR_REPLACE)");
-        return -ENODATA;
+        return -ENOATTR;
     }
 
     if (buffer == NULL && buffer_size != -ENOENT) {
@@ -415,7 +419,7 @@ int binary_storage_list_keys(const char *path, char *list, size_t size)
 
     if (size == 0 && res > XATTR_LIST_MAX) {
         // FIXME: we should return the size or an error ?
-        return -E2BIG;
+        return -ENOSPC;
     }
 
     return (int)res;

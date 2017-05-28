@@ -14,7 +14,12 @@
 /* For pread()/pwrite()/utimensat() */
 #define _XOPEN_SOURCE 700
 
-#include <fuse.h>
+#ifdef __APPLE__
+    #include <osxfuse/fuse.h>
+#else
+    #include <fuse.h>
+#endif
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>

@@ -2,7 +2,7 @@
 
 mkdir -p test/mount
 mkdir -p test/source
-./fuse_xattrs -o nonempty test/source/ test/mount/
+./fuse_xattrs -o enable_namespaces test/source/ test/mount/
 
 if [ $? -ne 0 ]; then
     echo "Error mounting the filesystem."
@@ -19,7 +19,12 @@ set -e
 
 popd
 
-fusermount -zu test/mount
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    umount test/mount
+else
+    fusermount -uz test/mount
+fi
+
 rm -d test/source
 rm -d test/mount
 

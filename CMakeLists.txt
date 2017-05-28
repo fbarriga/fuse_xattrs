@@ -34,11 +34,11 @@ endif()
 include (CheckCSourceCompiles)
 check_c_source_compiles ("
   #include <sys/types.h>
-  #include <attr/xattr.h>
+  #include <sys/xattr.h>
   int main() { return 1; }
-  " HAVE_ATTR_XATTR_H)
-if(NOT HAVE_ATTR_XATTR_H)
-    message(FATAL_ERROR "attr/xattr.h not found")
+  " HAVE_SYS_XATTR_H)
+if(NOT HAVE_SYS_XATTR_H)
+    message(FATAL_ERROR "sys/xattr.h not found")
 endif()
 
 # set required definitions
@@ -68,10 +68,18 @@ set(SOURCE_FILES
 
 add_executable(fuse_xattrs ${SOURCE_FILES})
 
-target_link_libraries (
-        fuse_xattrs
-        fuse
-)
+if(APPLE)
+    target_link_libraries (
+            fuse_xattrs
+            osxfuse
+    )
+else()
+    target_link_libraries (
+            fuse_xattrs
+            fuse
+    )
+endif()
+
 
 install (TARGETS fuse_xattrs DESTINATION bin)
 install (

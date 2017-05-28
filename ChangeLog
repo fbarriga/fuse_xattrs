@@ -1,3 +1,9 @@
+Release 0.4 (2017-05-27)
+------------------------
+
+* Now compiles and run on OSX (probably also on BSD)
+* Namespaces can be enabled on runtime (default: disabled)
+
 Release 0.3 (2017-05-21)
 ------------------------
 

@@ -36,6 +36,11 @@ http://github.com/libfuse/libfuse.
     cmake ..
     make
 
+Dependencies:
+
+    cmake
+    osxfuse (macOS only)
+
 ## Code Coverage
 
     mkdir build && cd build
@@ -43,6 +48,10 @@ http://github.com/libfuse/libfuse.
     make
     make fuse_xattrs_coverage
 
+Dependencies:
+
+    easy_install-3.6 xattr==0.9.1
+    
 ## Installing
 
     make install

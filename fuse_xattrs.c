@@ -14,17 +14,21 @@
 /* For pread()/pwrite()/utimensat() */
 #define _XOPEN_SOURCE 700
 
-/* For get_current_dir_name */
-#define _GNU_SOURCE
-
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <stddef.h>
+#include <assert.h>
 
-#include <fuse.h>
+#ifdef __APPLE__
+    #include <osxfuse/fuse.h>
+#else
+    #include <fuse.h>
+#endif
+
 #include <sys/xattr.h>
+#include <sys/param.h>
 
 #include "fuse_xattrs_config.h"
 
@@ -40,7 +44,7 @@ static int xmp_setxattr(const char *path, const char *name, const char *value, s
         return -ENOENT;
     }
 
-    if (get_namespace(name) != USER) {
+    if (xattrs_config.enable_namespaces == 1 && get_namespace(name) != USER) {
         debug_print("Only user namespace is supported. name=%s\n", name);
         return -ENOTSUP;
     }
@@ -75,7 +79,7 @@ static int xmp_getxattr(const char *path, const char *name, char *value, size_t 
         return -ENOENT;
     }
 
-    if (get_namespace(name) != USER) {
+    if (xattrs_config.enable_namespaces == 1 && get_namespace(name) != USER) {
         debug_print("Only user namespace is supported. name=%s\n", name);
         return -ENOTSUP;
     }
@@ -91,6 +95,18 @@ static int xmp_getxattr(const char *path, const char *name, char *value, size_t 
 
     return rtval;
 }
+
+#ifdef __APPLE__
+    static int xmp_setxattr_apple(const char *path, const char *name, const char *value, size_t size, int flags, u_int32_t position) {
+        assert(position == 0);
+        return xmp_setxattr(path, name, value, size, flags);
+    }
+
+    static int xmp_getxattr_apple(const char *path, const char *name, char *value, size_t size, u_int32_t position) {
+        assert(position == 0);
+        return xmp_getxattr(path, name, value, size);
+    }
+#endif
 
 static int xmp_listxattr(const char *path, char *list, size_t size)
 {
@@ -117,7 +133,7 @@ static int xmp_removexattr(const char *path, const char *name)
         return -ENOENT;
     }
 
-    if (get_namespace(name) != USER) {
+    if (xattrs_config.enable_namespaces == 1 && get_namespace(name) != USER) {
         debug_print("Only user namespace is supported. name=%s\n", name);
         return -ENOTSUP;
     }
@@ -161,8 +177,13 @@ static struct fuse_operations xmp_oper = {
 #ifdef HAVE_POSIX_FALLOCATE
         .fallocate   = xmp_fallocate,
 #endif
+#ifdef __APPLE__
+        .setxattr    = xmp_setxattr_apple,
+        .getxattr    = xmp_getxattr_apple,
+#else
         .setxattr    = xmp_setxattr,
         .getxattr    = xmp_getxattr,
+#endif
         .listxattr   = xmp_listxattr,
         .removexattr = xmp_removexattr,
 };
@@ -188,7 +209,8 @@ const char *sanitized_source_directory(const char *path) {
         return absolute_path;
     }
 
-    char *pwd = get_current_dir_name();
+    static char cwd[MAXPATHLEN];
+    char *pwd = getcwd(cwd, sizeof(cwd));
     size_t len = strlen(pwd) + 1 + strlen(path) + 1;
     int has_trailing_backslash = (path[strlen(path)-1] == '/');
     if (!has_trailing_backslash)
@@ -217,7 +239,8 @@ enum {
 #define FUSE_XATTRS_OPT(t, p, v) { t, offsetof(struct xattrs_config, p), v }
 
 static struct fuse_opt xattrs_opts[] = {
-        FUSE_XATTRS_OPT("show_sidecar",    show_sidecar, 1),
+        FUSE_XATTRS_OPT("show_sidecar",         show_sidecar,       1),
+        FUSE_XATTRS_OPT("enable_namespaces",    enable_namespaces,  1),
 
         FUSE_OPT_KEY("-V",                 KEY_VERSION),
         FUSE_OPT_KEY("--version",          KEY_VERSION),
@@ -249,6 +272,7 @@ static int xattrs_opt_proc(void *data, const char *arg, int key,
                             "\n"
                             "FUSE XATTRS options:\n"
                             "    -o show_sidecar  don't hide sidecar files\n"
+                            "    -o enable_namespaces  enable namespaces checks\n"
                             "\n", outargs->argv[0]);
 
             fuse_opt_add_arg(outargs, "-ho");

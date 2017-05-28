@@ -12,6 +12,7 @@
 
 struct xattrs_config {
     const int show_sidecar;
+    const int enable_namespaces;
     const char *source_dir;
     size_t source_dir_size;
 
