@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(fuse_xattrs C)
 
 set(FUSE_XATTRS_VERSION_MAJOR 0)
-set(FUSE_XATTRS_VERSION_MINOR 3)
+set(FUSE_XATTRS_VERSION_MINOR 4)
 
 set(BINARY_SIDECAR_EXT \".xattr\")
 
