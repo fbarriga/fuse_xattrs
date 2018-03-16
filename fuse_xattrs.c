@@ -153,6 +153,7 @@ static struct fuse_operations xmp_oper = {
         .utimens     = xmp_utimens,
 #endif
         .open        = xmp_open,
+        .create      = xmp_create,
         .read        = xmp_read,
         .write       = xmp_write,
         .statfs      = xmp_statfs,

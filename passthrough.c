@@ -25,6 +25,11 @@
 #include "xattrs_config.h"
 #include "utils.h"
 
+static int chown_new_file(const char *path, struct fuse_context *fc)
+{
+    return lchown(path, fc->uid, fc->gid);
+}
+
 int xmp_getattr(const char *path, struct stat *stbuf) {
     int res;
 
@@ -130,11 +135,16 @@ int xmp_mknod(const char *path, mode_t mode, dev_t rdev) {
     else
         res = mknod(_path, mode, rdev);
 
-    free(_path);
-    if (res == -1)
+    if (res == -1) {
+        free(_path);
         return -errno;
+    }
 
-    return 0;
+    struct fuse_context *fc = fuse_get_context();
+    res = chown_new_file(_path, fc);
+
+    free(_path);
+    return res;
 }
 
 int xmp_mkdir(const char *path, mode_t mode) {
@@ -145,12 +155,17 @@ int xmp_mkdir(const char *path, mode_t mode) {
 
     char *_path = prepend_source_directory(path);
     res = mkdir(_path, mode);
-    free(_path);
 
-    if (res == -1)
+    if (res == -1) {
+        free(_path);
         return -errno;
+    }
 
-    return 0;
+    struct fuse_context *fc = fuse_get_context();
+    res = chown_new_file(_path, fc);
+
+    free(_path);
+    return res;
 }
 
 int xmp_unlink(const char *path) {
@@ -206,12 +221,17 @@ int xmp_symlink(const char *from, const char *to) {
 
     char *_to = prepend_source_directory(to);
     res = symlink(from, _to);
-    free(_to);
 
-    if (res == -1)
+    if (res == -1) {
+        free(_to);
         return -errno;
+    }
 
-    return 0;
+    struct fuse_context *fc = fuse_get_context();
+    res = chown_new_file(_to, fc);
+
+    free(_to);
+    return res;
 }
 
 int xmp_rename(const char *from, const char *to) {
@@ -358,6 +378,25 @@ int xmp_open(const char *path, struct fuse_file_info *fi) {
     return 0;
 }
 
+int xmp_create(const char *path, mode_t mode, struct fuse_file_info *fi) {
+    int res;
+
+    char *_path = prepend_source_directory(path);
+    int fd = open(_path, fi->flags, mode & 0777);
+    if (fd == -1) {
+        free(_path);
+        return -errno;
+    }
+
+    struct fuse_context *fc = fuse_get_context();
+    res = chown_new_file(_path, fc);
+
+    fi->fh = fd;
+
+    free(_path);
+    return res;
+}
+
 int xmp_read(const char *path, char *buf, size_t size, off_t offset,
              struct fuse_file_info *fi)
 {
@@ -437,4 +476,3 @@ int xmp_fallocate(const char *path, int mode,
     return res;
 }
 #endif
-
