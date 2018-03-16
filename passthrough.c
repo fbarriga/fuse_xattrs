@@ -319,7 +319,7 @@ int xmp_truncate(const char *path, off_t size) {
     return 0;
 }
 
-#ifdef HAVE_UTIMENSAT
+#ifdef HAS_UTIMENSAT
 int xmp_utimens(const char *path, const struct timespec ts[2],
 struct fuse_file_info *fi)
 {

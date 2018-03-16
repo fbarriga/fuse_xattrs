@@ -149,7 +149,7 @@ static struct fuse_operations xmp_oper = {
         .chmod       = xmp_chmod,
         .chown       = xmp_chown,
         .truncate    = xmp_truncate,
-#ifdef HAVE_UTIMENSAT
+#ifdef HAS_UTIMENSAT
         .utimens     = xmp_utimens,
 #endif
         .open        = xmp_open,
