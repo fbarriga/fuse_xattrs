@@ -41,6 +41,16 @@ if(NOT HAVE_ATTR_XATTR_H)
     message(FATAL_ERROR "attr/xattr.h not found")
 endif()
 
+check_c_source_compiles ("
+  #include <unistd.h>
+  #include <sys/stat.h>
+  #include <fcntl.h>
+  int main() { utimensat(-1, NULL, NULL, 0); return 0; }
+  " HAS_UTIMENSAT)
+if(HAS_UTIMENSAT)
+    add_definitions (-DHAS_UTIMENSAT)
+endif()
+
 # set required definitions
 add_definitions (-D_FILE_OFFSET_BITS=64)
 
