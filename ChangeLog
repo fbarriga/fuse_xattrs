@@ -1,3 +1,10 @@
+Release 0.4 (2021-11-02)
+------------------------
+
+* bugfix: improve detection of utimensat support
+* bugfix: preserve effective uid and gid for new files
+* fix some compilation issues
+
 Release 0.3 (2017-05-21)
 ------------------------
 
