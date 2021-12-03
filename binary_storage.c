@@ -17,7 +17,15 @@
 #include "utils.h"
 #include "fuse_xattrs_config.h"
 
-#include <attr/xattr.h>
+
+#if __linux__
+    #include <sys/xattr.h>
+    #define ERR_NO_ATTR ENODATA
+#elif __APPLE__
+#else
+    #include <attr/xattr.h>
+    #define ERR_NO_ATTR ENOATTR
+#endif
 
 struct on_memory_attr {
     u_int16_t name_size;
@@ -321,7 +329,7 @@ int binary_storage_read_key(const char *path, const char *name, char *value, siz
     
     if (buffer == NULL) {
         if (buffer_size == -ENOENT) {
-            return -ENOATTR;
+            return -ERR_NO_ATTR;
         }
         return buffer_size;
     }
@@ -362,7 +370,7 @@ int binary_storage_read_key(const char *path, const char *name, char *value, siz
     }
     free(buffer);
 
-    return -ENOATTR;
+    return -ERR_NO_ATTR;
 }
 
 int binary_storage_list_keys(const char *path, char *list, size_t size)
@@ -465,7 +473,7 @@ int binary_storage_remove_key(const char *path, const char *name)
         debug_print("key removed successfully.\n");
     } else if (removed == 0) {
         error_print("key not found.\n");
-        res = -ENOATTR;
+        res = -ERR_NO_ATTR;
     } else {
         debug_print("removed %d keys (was duplicated)\n", removed);
         res = -EILSEQ;
