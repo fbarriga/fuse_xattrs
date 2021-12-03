@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(fuse_xattrs C)
 
+set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_LIST_DIR}/cmake")
+
 set(FUSE_XATTRS_VERSION_MAJOR 0)
 set(FUSE_XATTRS_VERSION_MINOR 3)
 
@@ -31,16 +33,12 @@ if(NOT HAVE_SYS_XATTR_H)
     message(FATAL_ERROR "sys/xattr.h not found")
 endif()
 
-include (CheckCSourceCompiles)
-check_c_source_compiles ("
-  #include <sys/types.h>
-  #include <attr/xattr.h>
-  int main() { return 1; }
-  " HAVE_ATTR_XATTR_H)
-if(NOT HAVE_ATTR_XATTR_H)
-    message(FATAL_ERROR "attr/xattr.h not found")
-endif()
+# Check for FUSE.
+find_package (FUSE REQUIRED)
+include_directories (${FUSE_INCLUDE_DIR})
+add_definitions (-D_FILE_OFFSET_BITS=64 -DFUSE_USE_VERSION=29)
 
+include (CheckCSourceCompiles)
 check_c_source_compiles ("
   #include <unistd.h>
   #include <sys/stat.h>
