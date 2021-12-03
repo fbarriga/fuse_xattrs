@@ -72,6 +72,7 @@ set(SOURCE_FILES
         passthrough.c
         binary_storage.c
         utils.c
+        xattrs_config.c
 )
 
 add_executable(fuse_xattrs ${SOURCE_FILES})

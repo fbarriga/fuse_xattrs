@@ -16,6 +16,8 @@
 #include "fuse_xattrs_config.h"
 #include "xattrs_config.h"
 
+const size_t BINARY_SIDECAR_EXT_SIZE;
+
 /* TODO: re-use memory to avoid calling malloc every time */
 char *prepend_source_directory(const char *b) {
     const size_t b_size = strlen(b);

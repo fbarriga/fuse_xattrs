@@ -7,14 +7,11 @@
   See the file COPYING.
 */
 
-#ifndef FUSE_XATTRS_CONFIG_H
-#define FUSE_XATTRS_CONFIG_H
+#include <stdio.h>
 
-extern struct xattrs_config {
+
+struct xattrs_config {
     const int show_sidecar;
     const char *source_dir;
     size_t source_dir_size;
 } xattrs_config;
-
-
-#endif //FUSE_XATTRS_CONFIG_H
