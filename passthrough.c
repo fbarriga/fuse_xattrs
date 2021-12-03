@@ -340,14 +340,12 @@ int xmp_truncate(const char *path, off_t size) {
 }
 
 #ifdef HAS_UTIMENSAT
-int xmp_utimens(const char *path, const struct timespec ts[2],
-struct fuse_file_info *fi)
+int xmp_utimens(const char *path, const struct timespec ts[2])
 {
     if (xattrs_config.show_sidecar == 0 && filename_is_sidecar(path) == 1)  {
         return -ENOENT;
     }
 
-    (void) fi;
     int res;
 
     char *_path = prepend_source_directory(path);
